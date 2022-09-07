@@ -15,7 +15,7 @@ from train_utils import (
     plot_loss,
     export_model,
 )
-from utils import imshow, load_emoji, zoom, to_rgb, to_rgba
+from utils import load_emoji, zoom, to_rgb, to_rgba, to_np
 from constants import (
     TARGET_PADDING,
     TARGET_EMOJI,
@@ -27,6 +27,8 @@ from constants import (
 )
 
 target_img = load_emoji(TARGET_EMOJI)
+target_img.save("target.png")
+target_img = to_np(target_img)
 # imshow(zoom(to_rgb(target_img), 2), fmt="png")
 
 p = TARGET_PADDING
@@ -51,15 +53,17 @@ trainer = tf.keras.optimizers.Adam(lr_sched)
 loss0 = loss_f(seed).numpy()
 pool = SamplePool(x=np.repeat(seed[None, ...], POOL_SIZE, 0))
 
+# todo: The cwd really shouldn't be hard coded
+# It should be easy to get the cwd with a python command
 remove_old_directory = "rm -rf train_log/*"
 subprocess.run(
     remove_old_directory.split(),
-    cwd="/N/u/joshnunl/BigRed200/neural-cellular-automata/replicate-lizard",
+    cwd="/N/u/joshnunl/Carbonate/src/neural-cellular-automata/replicate-lizard",
 )
 make_new_directory = "mkdir -p train_log"
 subprocess.run(
     make_new_directory.split(),
-    cwd="/N/u/joshnunl/BigRed200/neural-cellular-automata/replicate-lizard",
+    cwd="/N/u/joshnunl/Carbonate/src/neural-cellular-automata/replicate-lizard",
 )
 
 
@@ -98,10 +102,10 @@ for i in range(8000 + 1):
     step_i = len(loss_log)
     loss_log.append(loss.numpy())
 
-    # if step_i % 10 == 0:
-    #    generate_pool_figures(pool, step_i)
+    if step_i % 10 == 0:
+        generate_pool_figures(pool, step_i)
     if step_i % 100 == 0:
-        #    visualize_batch(x0, x, step_i)
+        visualize_batch(x0, x, step_i)
         plot_loss(loss_log)
         export_model(ca, "train_log/%04d" % step_i)
 

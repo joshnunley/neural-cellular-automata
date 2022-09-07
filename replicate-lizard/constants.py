@@ -5,7 +5,7 @@ BATCH_SIZE = 8
 POOL_SIZE = 1024
 CELL_FIRE_RATE = 0.5
 
-TARGET_EMOJI = "🦎"
+TARGET_EMOJI = "🥶"
 
 EXPERIMENT_TYPE = "Regenerating"
 EXPERIMENT_MAP = {"Growing": 0, "Persistent": 1, "Regenerating": 2}

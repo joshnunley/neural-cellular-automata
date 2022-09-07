@@ -2,8 +2,8 @@
 import PIL.Image, PIL.ImageDraw
 import requests
 import numpy as np
-import tensorflow as tf
 from tensorflow import clip_by_value
+from tensorflow.nn import max_pool2d
 
 # STDLib
 import io
@@ -42,10 +42,6 @@ def im2url(a, fmt="jpeg"):
     encoded = imencode(a, fmt)
     base64_byte_string = base64.b64encode(encoded).decode("ascii")
     return "data:image/" + fmt.upper() + ";base64," + base64_byte_string
-
-
-def imshow(a, fmt="jpeg"):
-    display(Image(data=imencode(a, fmt)))
 
 
 def tile2d(a, w=None):
@@ -98,9 +94,6 @@ def load_image(url, max_size=TARGET_SIZE):
     r = requests.get(url)
     img = PIL.Image.open(io.BytesIO(r.content))
     img.thumbnail((max_size, max_size), PIL.Image.ANTIALIAS)
-    img = np.float32(img) / 255.0
-    # premultiply RGB by Alpha
-    img[..., :3] *= img[..., 3:]
     return img
 
 
@@ -113,12 +106,19 @@ def load_emoji(emoji):
     return load_image(url)
 
 
+def to_np(img):
+    img = np.float32(img) / 255.0
+    # premultiply RGB by Alpha
+    img[..., :3] *= img[..., 3:]
+    return img
+
+
 def to_rgba(x):
     return x[..., :4]
 
 
 def to_alpha(x):
-    return tf.clip_by_value(x[..., 3:4], 0.0, 1.0)
+    return clip_by_value(x[..., 3:4], 0.0, 1.0)
 
 
 def to_rgb(x):
@@ -129,7 +129,7 @@ def to_rgb(x):
 
 def get_living_mask(x):
     alpha = x[:, :, :, 3:4]
-    return tf.nn.max_pool2d(alpha, 3, [1, 1, 1, 1], "SAME") > 0.1
+    return max_pool2d(alpha, 3, [1, 1, 1, 1], "SAME") > 0.1
 
 
 def make_seed(size, n=1):
@@ -139,4 +139,7 @@ def make_seed(size, n=1):
 
 
 if __name__ == "__main__":
-    print("here")
+    emoji = load_emoji("🥶")
+    emoji.save("emoji.png")
+    print(type(emoji))
+    print(np.shape(emoji))

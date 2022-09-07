@@ -9,7 +9,7 @@ import matplotlib.pylab as pl
 import json
 
 # Local
-from utils import imwrite, imshow, tile2d, to_rgb
+from utils import imwrite, tile2d, to_rgb
 from constants import CHANNEL_N
 
 
@@ -94,8 +94,6 @@ def visualize_batch(x0, x, step_i):
     vis = np.vstack([vis0, vis1])
     imwrite("train_log/batches_%04d.jpg" % step_i, vis)
     print("batch (before/after):")
-    imshow(vis)
-
 
 def plot_loss(loss_log):
     pl.figure(figsize=(10, 4))
